@@ -1,9 +1,9 @@
 import ListHelp (..)
 
 import Graphics.Element as G
-import Window as W
-import Keyboard as K
-import Random as R
+import Window           as W
+import Keyboard         as K
+import Random           as R
 
 ---
 
@@ -50,10 +50,9 @@ reduce : Row -> Row
 reduce row =
     let f b r =
           case r of
-            []            -> [b]
-            Block 0 :: xs -> b :: xs
-            x :: xs       -> if b == x then next b :: xs else b :: x :: xs
-        rd = foldr f [] row
+            []      -> [b]
+            x :: xs -> if b == x then next b :: xs else b :: x :: xs
+        rd = foldr f [] <| filter (\b -> b /= Block 0) row
         zs = repeat (dim - length rd) <| Block 0  -- Padding. Ensures length `dim`.
     in zs ++ rd
 
@@ -77,10 +76,12 @@ render (w,h) g =
         s  = (min w h `div` 10) * dim * 2
     in center (w,h) . container s s middle . flow G.down . map f <| g
 
-shift : Direction -> Grid -> Grid
-shift d g =
+shift : (Int,Direction) -> Grid -> Grid
+shift (n,d) g =
   maybe g (\f' -> let g' = f' g
-                  in if blanks g' == 0 then g' else addNew 0 g') <| shiftBy d
+                      bs = blanks g'
+                      n' = n `mod` bs
+                  in if bs == 0 then g' else addNew n' g') <| shiftBy d
 
 shiftBy : Direction -> Maybe (Grid -> Grid)
 shiftBy {x,y} = if | x == 1  && y == 0  -> Just right
@@ -108,5 +109,8 @@ colour (Block n) =
 center : Dimensions -> Element -> Element
 center (w,h) e = container w h middle e
 
+input : Signal (Int,Direction)
+input = (,) <~ randNthPos ~ K.arrows
+
 main : Signal Element
-main = render <~ W.dimensions ~ (foldp shift board K.arrows)
+main = render <~ W.dimensions ~ (foldp shift board input)
