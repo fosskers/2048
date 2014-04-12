@@ -72,7 +72,7 @@ down = transpose . right . transpose
 -- By setting the color of the container, you can create borders.
 render : Dimensions -> Grid -> Element
 render (w,h) g =
-    let f  = flow G.right . map (asSquare (w,h))
+    let f  = flow G.right . map (asCircle (w,h))
         s  = (min w h `div` 10) * dim * 2
     in center (w,h) . container s s middle . flow G.down . map f <| g
 
@@ -90,11 +90,13 @@ shiftBy {x,y} = if | x == 1  && y == 0  -> Just right
                    | x == 0  && y == -1 -> Just down
                    | otherwise          -> Nothing
 
-asSquare : Dimensions -> Block -> Element
-asSquare (w,h) b = let co = colour b
-                       si = min w h `div` 10
-                       sh = circle <| toFloat si
-                   in collage (si * 2) (si * 2) [filled co sh]
+asCircle : Dimensions -> Block -> Element
+asCircle (w,h) (Block n) =
+    let co = colour <| Block n
+        si = min w h `div` 10
+        sh = circle <| toFloat si
+        te = if n == 0 then plainText "" else asText <| 2 ^ n
+    in collage (si * 2) (si * 2) [filled co sh, scale 2 <| toForm te]
 
 -- | Yields a colouring function based Block rank.
 colour : Block -> Color
