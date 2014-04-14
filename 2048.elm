@@ -1,5 +1,4 @@
 import ListHelp (..)
-
 import Graphics.Element as G
 import Window           as W
 import Keyboard         as K
@@ -9,9 +8,8 @@ import Random           as R
 
 data Block = Block Int
 
-type Row  = [Block]
-type Grid = [Row]
-
+type Row        = [Block]
+type Grid       = [Row]
 type Direction  = { x:Int, y:Int }
 type Dimensions = (Int,Int)
 
@@ -42,18 +40,14 @@ addNew n g =
 next : Block -> Block
 next (Block n) = Block <| n + 1
 
-randNthPos : Signal Int
-randNthPos = R.range 1 (dim ^ 2) K.arrows
-
 -- | ROW REDUCTION
 reduce : Row -> Row
 reduce row =
-    let f b r =
-          case r of
-            []      -> [b]
-            x :: xs -> if b == x then next b :: xs else b :: x :: xs
+    let f b r = case r of
+                  []      -> [b]
+                  x :: xs -> if b == x then next b :: xs else b :: x :: xs
         rd = foldr f [] <| filter (\b -> b /= Block 0) row
-        zs = repeat (dim - length rd) <| Block 0  -- Padding. Ensures length `dim`.
+        zs = repeat (dim - length rd) <| Block 0  -- Ensures length `dim`.
     in zs ++ rd
 
 right : Grid -> Grid
@@ -69,7 +63,6 @@ down : Grid -> Grid
 down = transpose . right . transpose
 
 -- | RENDERING
--- By setting the color of the container, you can create borders.
 render : Dimensions -> Grid -> Element
 render (w,h) g =
     let f  = flow G.right . map (asCircle (w,h))
@@ -98,7 +91,7 @@ asCircle (w,h) (Block n) =
         te = if n == 0 then plainText "" else asText <| 2 ^ n
     in collage (si * 2) (si * 2) [filled co sh, scale 2 <| toForm te]
 
--- | Yields a colouring function based Block rank.
+-- | Yields a colour based on Block rank.
 colour : Block -> Color
 colour (Block n) =
     let cs = [ lightGray, lightRed, lightOrange, lightYellow, lightGreen
@@ -110,6 +103,9 @@ colour (Block n) =
 -- | Centers an Element based on given Window size.
 center : Dimensions -> Element -> Element
 center (w,h) e = container w h middle e
+
+randNthPos : Signal Int
+randNthPos = R.range 1 (dim ^ 2) K.arrows
 
 input : Signal (Int,Direction)
 input = (,) <~ randNthPos ~ K.arrows
