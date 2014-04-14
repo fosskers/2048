@@ -1,0 +1,405 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="UTF-8"><title>2048</title><script type="text/javascript" src="elm-runtime.js"></script><script type="text/javascript">Elm.Main = Elm.Main || {};
+Elm.Main.make = function (_elm) {
+   "use strict";
+   _elm.Main = _elm.Main || {};
+   if (_elm.Main.values)
+   return _elm.Main.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _E = _N.Error.make(_elm),
+   _J = _N.JavaScript.make(_elm),
+   $moduleName = "Main";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var Keyboard = Elm.Keyboard.make(_elm);
+   var List = Elm.List.make(_elm);
+   var ListHelp = Elm.ListHelp.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Random = Elm.Random.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var Window = Elm.Window.make(_elm);
+   var _op = {};
+   var center = F2(function (_v0,
+   e) {
+      return function () {
+         switch (_v0.ctor)
+         {case "_Tuple2":
+            return A4(Graphics.Element.container,
+              _v0._0,
+              _v0._1,
+              Graphics.Element.middle,
+              e);}
+         _E.Case($moduleName,
+         "on line 105, column 18 to 40");
+      }();
+   });
+   var dim = 4;
+   var randNthPos = A3(Random.range,
+   1,
+   Math.pow(dim,2),
+   Keyboard.arrows);
+   var input = A2(Signal._op["~"],
+   A2(Signal._op["<~"],
+   F2(function (v0,v1) {
+      return {ctor: "_Tuple2"
+             ,_0: v0
+             ,_1: v1};
+   }),
+   randNthPos),
+   Keyboard.arrows);
+   var Direction = F2(function (a,
+   b) {
+      return {_: {},x: a,y: b};
+   });
+   var Block = function (a) {
+      return {ctor: "Block",_0: a};
+   };
+   var board = List.repeat(dim)(A2(List.repeat,
+   dim,
+   Block(0)));
+   var blanks = function (g) {
+      return function () {
+         switch (g.ctor)
+         {case "::": switch (g._0.ctor)
+              {case "::":
+                 switch (g._0._0.ctor)
+                   {case "Block":
+                      switch (g._0._0._0)
+                        {case 0:
+                           return 1 + blanks({ctor: "::"
+                                             ,_0: g._0._1
+                                             ,_1: g._1});}
+                        break;}
+                   return blanks({ctor: "::"
+                                 ,_0: g._0._1
+                                 ,_1: g._1});
+                 case "[]": return blanks(g._1);}
+              break;
+            case "[]": return 0;}
+         _E.Case($moduleName,
+         "between lines 25 and 29");
+      }();
+   };
+   var addNew = F2(function (n,g) {
+      return function () {
+         var f = F2(function (n,bs) {
+            return function () {
+               switch (bs.ctor)
+               {case "::": switch (bs._0.ctor)
+                    {case "Block": switch (bs._0._0)
+                         {case 0: return _U.eq(n,
+                              0) ? {ctor: "::"
+                                   ,_0: Block(1)
+                                   ,_1: bs._1} : {ctor: "::"
+                                                 ,_0: Block(0)
+                                                 ,_1: A2(f,n - 1,bs._1)};}
+                         break;}
+                    return {ctor: "::"
+                           ,_0: bs._0
+                           ,_1: A2(f,n,bs._1)};}
+               _E.Case($moduleName,
+               "between lines 35 and 38");
+            }();
+         });
+         return ListHelp.groupsOf(dim)(f(n)(List.concat(g)));
+      }();
+   });
+   var next = function (_v14) {
+      return function () {
+         switch (_v14.ctor)
+         {case "Block":
+            return Block(_v14._0 + 1);}
+         _E.Case($moduleName,
+         "on line 41, column 18 to 32");
+      }();
+   };
+   var reduce = function (row) {
+      return function () {
+         var f = F2(function (b,r) {
+            return function () {
+               switch (r.ctor)
+               {case "::": return _U.eq(b,
+                    r._0) ? {ctor: "::"
+                            ,_0: next(b)
+                            ,_1: r._1} : {ctor: "::"
+                                         ,_0: b
+                                         ,_1: {ctor: "::"
+                                              ,_0: r._0
+                                              ,_1: r._1}};
+                  case "[]":
+                  return _J.toList([b]);}
+               _E.Case($moduleName,
+               "between lines 46 and 49");
+            }();
+         });
+         var rd = A2(List.foldr,
+         f,
+         _J.toList([]))(A2(List.filter,
+         function (b) {
+            return !_U.eq(b,Block(0));
+         },
+         row));
+         var zs = List.repeat(dim - List.length(rd))(Block(0));
+         return _L.append(zs,rd);
+      }();
+   };
+   var right = List.map(reduce);
+   var down = function ($) {
+      return ListHelp.transpose(right(ListHelp.transpose($)));
+   };
+   var left = List.map(function ($) {
+      return List.reverse(reduce(List.reverse($)));
+   });
+   var up = function ($) {
+      return ListHelp.transpose(left(ListHelp.transpose($)));
+   };
+   var shiftBy = function (_v20) {
+      return function () {
+         return _U.eq(_v20.x,
+         1) && _U.eq(_v20.y,
+         0) ? Maybe.Just(right) : _U.eq(_v20.x,
+         -1) && _U.eq(_v20.y,
+         0) ? Maybe.Just(left) : _U.eq(_v20.x,
+         0) && _U.eq(_v20.y,
+         1) ? Maybe.Just(up) : _U.eq(_v20.x,
+         0) && _U.eq(_v20.y,
+         -1) ? Maybe.Just(down) : Maybe.Nothing;
+      }();
+   };
+   var shift = F2(function (_v22,
+   g) {
+      return function () {
+         switch (_v22.ctor)
+         {case "_Tuple2":
+            return A2(Maybe.maybe,
+              g,
+              function (f$) {
+                 return function () {
+                    var g$ = f$(g);
+                    var bs = blanks(g$);
+                    var n$ = A2(Basics.mod,
+                    _v22._0,
+                    bs);
+                    return _U.eq(bs,
+                    0) ? g$ : A2(addNew,n$,g$);
+                 }();
+              })(shiftBy(_v22._1));}
+         _E.Case($moduleName,
+         "between lines 74 and 77");
+      }();
+   });
+   var colour = function (_v26) {
+      return function () {
+         switch (_v26.ctor)
+         {case "Block":
+            return function () {
+                 var cs = _J.toList([Color.lightGray
+                                    ,Color.lightRed
+                                    ,Color.lightOrange
+                                    ,Color.lightYellow
+                                    ,Color.lightGreen
+                                    ,Color.lightBlue
+                                    ,Color.lightPurple
+                                    ,Color.red
+                                    ,Color.orange
+                                    ,Color.yellow
+                                    ,Color.green
+                                    ,Color.blue
+                                    ,Color.purple
+                                    ,Color.darkRed
+                                    ,Color.darkOrange
+                                    ,Color.darkYellow
+                                    ,Color.darkGreen
+                                    ,Color.darkBlue
+                                    ,Color.darkPurple]);
+                 return A2(Maybe.maybe,
+                 Color.gray,
+                 Basics.id)(A2(ListHelp._op["!!"],
+                 cs,
+                 A2(Basics.mod,
+                 _v26._0,
+                 List.length(cs))));
+              }();}
+         _E.Case($moduleName,
+         "between lines 97 and 101");
+      }();
+   };
+   var asCircle = F2(function (_v29,
+   _v30) {
+      return function () {
+         switch (_v30.ctor)
+         {case "Block":
+            return function () {
+                 switch (_v29.ctor)
+                 {case "_Tuple2":
+                    return function () {
+                         var te = _U.eq(_v30._0,
+                         0) ? Text.plainText("") : Text.asText(Math.pow(2,
+                         _v30._0));
+                         var si = A2(Basics.min,
+                         _v29._0,
+                         _v29._1) / 10 | 0;
+                         var sh = Graphics.Collage.circle(Basics.toFloat(si));
+                         var co = colour(Block(_v30._0));
+                         return A3(Graphics.Collage.collage,
+                         si * 2,
+                         si * 2,
+                         _J.toList([A2(Graphics.Collage.filled,
+                                   co,
+                                   sh)
+                                   ,Graphics.Collage.scale(2)(Graphics.Collage.toForm(te))]));
+                      }();}
+                 _E.Case($moduleName,
+                 "between lines 88 and 92");
+              }();}
+         _E.Case($moduleName,
+         "between lines 88 and 92");
+      }();
+   });
+   var render = F2(function (_v36,
+   g) {
+      return function () {
+         switch (_v36.ctor)
+         {case "_Tuple2":
+            return function () {
+                 var s = (A2(Basics.min,
+                 _v36._0,
+                 _v36._1) / 10 | 0) * dim * 2;
+                 var f = function ($) {
+                    return Graphics.Element.flow(Graphics.Element.right)(List.map(asCircle({ctor: "_Tuple2"
+                                                                                           ,_0: _v36._0
+                                                                                           ,_1: _v36._1}))($));
+                 };
+                 return center({ctor: "_Tuple2"
+                               ,_0: _v36._0
+                               ,_1: _v36._1})(A3(Graphics.Element.container,
+                 s,
+                 s,
+                 Graphics.Element.middle)(Graphics.Element.flow(Graphics.Element.down)(List.map(f)(g))));
+              }();}
+         _E.Case($moduleName,
+         "between lines 68 and 70");
+      }();
+   });
+   var main = A2(Signal._op["~"],
+   A2(Signal._op["<~"],
+   render,
+   Window.dimensions),
+   A3(Signal.foldp,
+   shift,
+   board,
+   input));
+   _elm.Main.values = {_op: _op
+                      ,dim: dim
+                      ,board: board
+                      ,blanks: blanks
+                      ,addNew: addNew
+                      ,next: next
+                      ,reduce: reduce
+                      ,right: right
+                      ,left: left
+                      ,up: up
+                      ,down: down
+                      ,render: render
+                      ,shift: shift
+                      ,shiftBy: shiftBy
+                      ,asCircle: asCircle
+                      ,colour: colour
+                      ,center: center
+                      ,randNthPos: randNthPos
+                      ,input: input
+                      ,main: main
+                      ,Block: Block
+                      ,Direction: Direction};
+   return _elm.Main.values;
+};Elm.ListHelp = Elm.ListHelp || {};
+Elm.ListHelp.make = function (_elm) {
+   "use strict";
+   _elm.ListHelp = _elm.ListHelp || {};
+   if (_elm.ListHelp.values)
+   return _elm.ListHelp.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _E = _N.Error.make(_elm),
+   _J = _N.JavaScript.make(_elm),
+   $moduleName = "ListHelp";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var groupsOf = F2(function (n,
+   xs) {
+      return function () {
+         switch (xs.ctor)
+         {case "[]":
+            return _J.toList([]);}
+         return {ctor: "::"
+                ,_0: A2(List.take,n,xs)
+                ,_1: A2(groupsOf,
+                n,
+                A2(List.drop,n,xs))};
+      }();
+   });
+   _op["!!"] = F2(function (xs,n) {
+      return function () {
+         var _v1 = {ctor: "_Tuple2"
+                   ,_0: xs
+                   ,_1: n};
+         switch (_v1.ctor)
+         {case "_Tuple2":
+            switch (_v1._0.ctor)
+              {case "::": switch (_v1._1)
+                   {case 0:
+                      return Maybe.Just(_v1._0._0);}
+                   return A2(_op["!!"],
+                   _v1._0._1,
+                   _v1._1 - 1);
+                 case "[]":
+                 return Maybe.Nothing;}
+              break;}
+         _E.Case($moduleName,
+         "between lines 9 and 12");
+      }();
+   });
+   var transpose = function (xs) {
+      return function () {
+         switch (xs.ctor)
+         {case "::": switch (xs._0.ctor)
+              {case "[]":
+                 return _J.toList([]);}
+              break;}
+         return {ctor: "::"
+                ,_0: A2(List.map,List.head,xs)
+                ,_1: transpose(A2(List.map,
+                List.tail,
+                xs))};
+      }();
+   };
+   _elm.ListHelp.values = {_op: _op
+                          ,transpose: transpose
+                          ,groupsOf: groupsOf};
+   return _elm.ListHelp.values;
+};</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Main)</script><noscript></noscript></body></html>
