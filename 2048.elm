@@ -29,13 +29,13 @@ blanks g = case g of
              (_ :: bs) :: rs -> blanks (bs :: rs)
 
 -- | Adds a new `Block 1` to the `nth` empty space (Block 0).
-addNew : Int -> Grid -> Grid
-addNew n g =
-    let f n bs =
+newBlock : Int -> Grid -> Grid
+newBlock n g =
+  let f n bs =
         case bs of
           Block 0 :: bs' -> if n == 0 then Block 1 :: bs' else Block 0 :: f (n-1) bs'
           b :: bs'       -> b :: f n bs'
-    in groupsOf dim . f n . concat <| g
+  in groupsOf dim . f n . concat <| g
 
 next : Block -> Block
 next (Block n) = Block <| n + 1
@@ -73,8 +73,7 @@ shift : (Int,Direction) -> Grid -> Grid
 shift (n,d) g =
   maybe g (\f' -> let g' = f' g
                       bs = blanks g'
-                      n' = n `mod` bs
-                  in if bs == 0 then g' else addNew n' g') <| shiftBy d
+                  in if bs == 0 then g' else newBlock (n `mod` bs) g') <| shiftBy d
 
 shiftBy : Direction -> Maybe (Grid -> Grid)
 shiftBy {x,y} = if | x == 1  && y == 0  -> Just right
