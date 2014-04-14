@@ -41,7 +41,7 @@ Elm.Main.make = function (_elm) {
               Graphics.Element.middle,
               e);}
          _E.Case($moduleName,
-         "on line 105, column 18 to 40");
+         "on line 104, column 18 to 40");
       }();
    });
    var dim = 4;
@@ -91,7 +91,8 @@ Elm.Main.make = function (_elm) {
          "between lines 25 and 29");
       }();
    };
-   var addNew = F2(function (n,g) {
+   var newBlock = F2(function (n,
+   g) {
       return function () {
          var f = F2(function (n,bs) {
             return function () {
@@ -188,15 +189,14 @@ Elm.Main.make = function (_elm) {
                  return function () {
                     var g$ = f$(g);
                     var bs = blanks(g$);
-                    var n$ = A2(Basics.mod,
-                    _v22._0,
-                    bs);
                     return _U.eq(bs,
-                    0) ? g$ : A2(addNew,n$,g$);
+                    0) ? g$ : A2(newBlock,
+                    A2(Basics.mod,_v22._0,bs),
+                    g$);
                  }();
               })(shiftBy(_v22._1));}
          _E.Case($moduleName,
-         "between lines 74 and 77");
+         "between lines 74 and 76");
       }();
    });
    var colour = function (_v26) {
@@ -232,7 +232,7 @@ Elm.Main.make = function (_elm) {
                  List.length(cs))));
               }();}
          _E.Case($moduleName,
-         "between lines 97 and 101");
+         "between lines 96 and 100");
       }();
    };
    var asCircle = F2(function (_v29,
@@ -261,10 +261,10 @@ Elm.Main.make = function (_elm) {
                                    ,Graphics.Collage.scale(2)(Graphics.Collage.toForm(te))]));
                       }();}
                  _E.Case($moduleName,
-                 "between lines 88 and 92");
+                 "between lines 87 and 91");
               }();}
          _E.Case($moduleName,
-         "between lines 88 and 92");
+         "between lines 87 and 91");
       }();
    });
    var render = F2(function (_v36,
@@ -304,7 +304,7 @@ Elm.Main.make = function (_elm) {
                       ,dim: dim
                       ,board: board
                       ,blanks: blanks
-                      ,addNew: addNew
+                      ,newBlock: newBlock
                       ,next: next
                       ,reduce: reduce
                       ,right: right
