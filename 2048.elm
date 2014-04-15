@@ -70,10 +70,12 @@ render (w,h) g =
     in center (w,h) . container s s middle . flow G.down . map f <| g
 
 shift : (Int,Direction) -> Grid -> Grid
-shift (n,d) g =
+shift (n,d) g = shiftBy d |>
   maybe g (\f' -> let g' = f' g
                       bs = blanks g'
-                  in if bs == 0 then g' else newBlock (n `mod` bs) g') <| shiftBy d
+                  in if | bs == 0 -> g'
+                        | bs /= (dim ^ 2) && g == g' -> g'
+                        | otherwise -> newBlock (n `mod` bs) g')
 
 shiftBy : Direction -> Maybe (Grid -> Grid)
 shiftBy {x,y} = if | x == 1  && y == 0  -> Just right
