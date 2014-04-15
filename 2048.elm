@@ -1,4 +1,5 @@
 import ListHelp (..)
+import Touch.Screen     as T
 import Graphics.Element as G
 import Window           as W
 import Keyboard         as K
@@ -10,8 +11,8 @@ data Block = Block Int
 
 type Row        = [Block]
 type Grid       = [Row]
-type Direction  = { x:Int, y:Int }
 type Dimensions = (Int,Int)
+type Direction  = {x:Int,y:Int}
 
 dim : Int
 dim = 4
@@ -69,7 +70,7 @@ render (w,h) g =
         s  = (min w h `div` 10) * dim * 2
     in center (w,h) . container s s middle . flow G.down . map f <| g
 
-shift : (Int,Direction) -> Grid -> Grid
+shift : (Int,T.Cardinal) -> Grid -> Grid
 shift (n,d) g = shiftBy d |>
   maybe g (\f' -> let g' = f' g
                       bs = blanks g'
@@ -77,12 +78,12 @@ shift (n,d) g = shiftBy d |>
                         | bs /= (dim ^ 2) && g == g' -> g'
                         | otherwise -> newBlock (n `mod` bs) g')
 
-shiftBy : Direction -> Maybe (Grid -> Grid)
-shiftBy {x,y} = if | x == 1  && y == 0  -> Just right
-                   | x == -1 && y == 0  -> Just left
-                   | x == 0  && y == 1  -> Just up
-                   | x == 0  && y == -1 -> Just down
-                   | otherwise          -> Nothing
+shiftBy : T.Cardinal -> Maybe (Grid -> Grid)
+shiftBy c = if | c == T.Right -> Just right
+               | c == T.Left  -> Just left
+               | c == T.Up    -> Just up
+               | c == T.Down  -> Just down
+               | otherwise    -> Nothing
 
 asCircle : Dimensions -> Block -> Element
 asCircle (w,h) (Block n) =
@@ -108,8 +109,9 @@ center (w,h) e = container w h middle e
 randNthPos : Signal Int
 randNthPos = R.range 1 (dim ^ 2) K.arrows
 
-input : Signal (Int,Direction)
-input = (,) <~ randNthPos ~ K.arrows
+input : Signal (Int,T.Cardinal)
+input = let dir = T.cardinal |> merge (T.fromArrows <~ K.arrows)
+        in (,) <~ randNthPos ~ dir
 
 main : Signal Element
 main = render <~ W.dimensions ~ (foldp shift board input)
