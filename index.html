@@ -28,6 +28,8 @@ Elm.Main.make = function (_elm) {
    var String = Elm.String.make(_elm);
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
+   var Touch = Touch || {};
+   Touch.Screen = Elm.Touch.Screen.make(_elm);
    var Window = Elm.Window.make(_elm);
    var _op = {};
    var center = F2(function (_v0,
@@ -41,7 +43,7 @@ Elm.Main.make = function (_elm) {
               Graphics.Element.middle,
               e);}
          _E.Case($moduleName,
-         "on line 106, column 18 to 40");
+         "on line 107, column 18 to 40");
       }();
    });
    var dim = 4;
@@ -49,15 +51,20 @@ Elm.Main.make = function (_elm) {
    1,
    Math.pow(dim,2),
    Keyboard.arrows);
-   var input = A2(Signal._op["~"],
-   A2(Signal._op["<~"],
-   F2(function (v0,v1) {
-      return {ctor: "_Tuple2"
-             ,_0: v0
-             ,_1: v1};
-   }),
-   randNthPos),
-   Keyboard.arrows);
+   var input = function () {
+      var dir = Signal.merge(A2(Signal._op["<~"],
+      Touch.Screen.fromArrows,
+      Keyboard.arrows))(Touch.Screen.cardinal);
+      return A2(Signal._op["~"],
+      A2(Signal._op["<~"],
+      F2(function (v0,v1) {
+         return {ctor: "_Tuple2"
+                ,_0: v0
+                ,_1: v1};
+      }),
+      randNthPos),
+      dir);
+   }();
    var Direction = F2(function (a,
    b) {
       return {_: {},x: a,y: b};
@@ -88,7 +95,7 @@ Elm.Main.make = function (_elm) {
               break;
             case "[]": return 0;}
          _E.Case($moduleName,
-         "between lines 25 and 29");
+         "between lines 26 and 30");
       }();
    };
    var newBlock = F2(function (n,
@@ -110,7 +117,7 @@ Elm.Main.make = function (_elm) {
                            ,_0: bs._0
                            ,_1: A2(f,n,bs._1)};}
                _E.Case($moduleName,
-               "between lines 35 and 38");
+               "between lines 36 and 39");
             }();
          });
          return ListHelp.groupsOf(dim)(f(n)(List.concat(g)));
@@ -122,7 +129,7 @@ Elm.Main.make = function (_elm) {
          {case "Block":
             return Block(_v14._0 + 1);}
          _E.Case($moduleName,
-         "on line 41, column 18 to 32");
+         "on line 42, column 18 to 32");
       }();
    };
    var reduce = function (row) {
@@ -141,7 +148,7 @@ Elm.Main.make = function (_elm) {
                   case "[]":
                   return _J.toList([b]);}
                _E.Case($moduleName,
-               "between lines 46 and 49");
+               "between lines 47 and 50");
             }();
          });
          var rd = A2(List.foldr,
@@ -165,23 +172,17 @@ Elm.Main.make = function (_elm) {
    var up = function ($) {
       return ListHelp.transpose(left(ListHelp.transpose($)));
    };
-   var shiftBy = function (_v20) {
-      return function () {
-         return _U.eq(_v20.x,
-         1) && _U.eq(_v20.y,
-         0) ? Maybe.Just(right) : _U.eq(_v20.x,
-         -1) && _U.eq(_v20.y,
-         0) ? Maybe.Just(left) : _U.eq(_v20.x,
-         0) && _U.eq(_v20.y,
-         1) ? Maybe.Just(up) : _U.eq(_v20.x,
-         0) && _U.eq(_v20.y,
-         -1) ? Maybe.Just(down) : Maybe.Nothing;
-      }();
+   var shiftBy = function (c) {
+      return _U.eq(c,
+      Touch.Screen.Right) ? Maybe.Just(right) : _U.eq(c,
+      Touch.Screen.Left) ? Maybe.Just(left) : _U.eq(c,
+      Touch.Screen.Up) ? Maybe.Just(up) : _U.eq(c,
+      Touch.Screen.Down) ? Maybe.Just(down) : Maybe.Nothing;
    };
-   var shift = F2(function (_v22,
+   var shift = F2(function (_v20,
    g) {
       return function () {
-         switch (_v22.ctor)
+         switch (_v20.ctor)
          {case "_Tuple2":
             return A2(Maybe.maybe,
               g,
@@ -193,17 +194,17 @@ Elm.Main.make = function (_elm) {
                     0) ? g$ : !_U.eq(bs,
                     Math.pow(dim,2)) && _U.eq(g,
                     g$) ? g$ : A2(newBlock,
-                    A2(Basics.mod,_v22._0,bs),
+                    A2(Basics.mod,_v20._0,bs),
                     g$);
                  }();
-              })(shiftBy(_v22._1));}
+              })(shiftBy(_v20._1));}
          _E.Case($moduleName,
-         "between lines 73 and 78");
+         "between lines 74 and 79");
       }();
    });
-   var colour = function (_v26) {
+   var colour = function (_v24) {
       return function () {
-         switch (_v26.ctor)
+         switch (_v24.ctor)
          {case "Block":
             return function () {
                  var cs = _J.toList([Color.lightGray
@@ -230,30 +231,30 @@ Elm.Main.make = function (_elm) {
                  Basics.id)(A2(ListHelp._op["!!"],
                  cs,
                  A2(Basics.mod,
-                 _v26._0,
+                 _v24._0,
                  List.length(cs))));
               }();}
          _E.Case($moduleName,
-         "between lines 98 and 102");
+         "between lines 99 and 103");
       }();
    };
-   var asCircle = F2(function (_v29,
-   _v30) {
+   var asCircle = F2(function (_v27,
+   _v28) {
       return function () {
-         switch (_v30.ctor)
+         switch (_v28.ctor)
          {case "Block":
             return function () {
-                 switch (_v29.ctor)
+                 switch (_v27.ctor)
                  {case "_Tuple2":
                     return function () {
-                         var te = _U.eq(_v30._0,
+                         var te = _U.eq(_v28._0,
                          0) ? Text.plainText("") : Text.asText(Math.pow(2,
-                         _v30._0));
+                         _v28._0));
                          var si = A2(Basics.min,
-                         _v29._0,
-                         _v29._1) / 10 | 0;
+                         _v27._0,
+                         _v27._1) / 10 | 0;
                          var sh = Graphics.Collage.circle(Basics.toFloat(si));
-                         var co = colour(Block(_v30._0));
+                         var co = colour(Block(_v28._0));
                          return A3(Graphics.Collage.collage,
                          si * 2,
                          si * 2,
@@ -263,35 +264,35 @@ Elm.Main.make = function (_elm) {
                                    ,Graphics.Collage.scale(2)(Graphics.Collage.toForm(te))]));
                       }();}
                  _E.Case($moduleName,
-                 "between lines 89 and 93");
+                 "between lines 90 and 94");
               }();}
          _E.Case($moduleName,
-         "between lines 89 and 93");
+         "between lines 90 and 94");
       }();
    });
-   var render = F2(function (_v36,
+   var render = F2(function (_v34,
    g) {
       return function () {
-         switch (_v36.ctor)
+         switch (_v34.ctor)
          {case "_Tuple2":
             return function () {
                  var s = (A2(Basics.min,
-                 _v36._0,
-                 _v36._1) / 10 | 0) * dim * 2;
+                 _v34._0,
+                 _v34._1) / 10 | 0) * dim * 2;
                  var f = function ($) {
                     return Graphics.Element.flow(Graphics.Element.right)(List.map(asCircle({ctor: "_Tuple2"
-                                                                                           ,_0: _v36._0
-                                                                                           ,_1: _v36._1}))($));
+                                                                                           ,_0: _v34._0
+                                                                                           ,_1: _v34._1}))($));
                  };
                  return center({ctor: "_Tuple2"
-                               ,_0: _v36._0
-                               ,_1: _v36._1})(A3(Graphics.Element.container,
+                               ,_0: _v34._0
+                               ,_1: _v34._1})(A3(Graphics.Element.container,
                  s,
                  s,
                  Graphics.Element.middle)(Graphics.Element.flow(Graphics.Element.down)(List.map(f)(g))));
               }();}
          _E.Case($moduleName,
-         "between lines 68 and 70");
+         "between lines 69 and 71");
       }();
    });
    var main = A2(Signal._op["~"],
@@ -404,4 +405,203 @@ Elm.ListHelp.make = function (_elm) {
                           ,transpose: transpose
                           ,groupsOf: groupsOf};
    return _elm.ListHelp.values;
+};Elm.Touch = Elm.Touch || {};
+Elm.Touch.Screen = Elm.Touch.Screen || {};
+Elm.Touch.Screen.make = function (_elm) {
+   "use strict";
+   _elm.Touch = _elm.Touch || {};
+   _elm.Touch.Screen = _elm.Touch.Screen || {};
+   if (_elm.Touch.Screen.values)
+   return _elm.Touch.Screen.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _E = _N.Error.make(_elm),
+   _J = _N.JavaScript.make(_elm),
+   $moduleName = "Touch.Screen";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var Touch = Elm.Touch.make(_elm);
+   var _op = {};
+   var isTap = function (_v0) {
+      return function () {
+         return _U.eq(_v0.x0,
+         _v0.x) && _U.eq(_v0.y0,_v0.y);
+      }();
+   };
+   var angle = F2(function (_v2,
+   _v3) {
+      return function () {
+         switch (_v3.ctor)
+         {case "_Tuple2":
+            return function () {
+                 switch (_v2.ctor)
+                 {case "_Tuple2":
+                    return A2(Basics.atan2,
+                      Basics.toFloat(_v2._1 - _v3._1),
+                      Basics.toFloat(_v3._0 - _v2._0));}
+                 _E.Case($moduleName,
+                 "on line 42, column 25 to 68");
+              }();}
+         _E.Case($moduleName,
+         "on line 42, column 25 to 68");
+      }();
+   });
+   var ThreeFinger = {ctor: "ThreeFinger"};
+   var TwoFinger = {ctor: "TwoFinger"};
+   var OneFinger = {ctor: "OneFinger"};
+   var Swipe = F2(function (a,b) {
+      return {ctor: "Swipe"
+             ,_0: a
+             ,_1: b};
+   });
+   var swipe = function () {
+      var a = function (t) {
+         return A2(angle,
+         {ctor: "_Tuple2"
+         ,_0: t.x0
+         ,_1: t.y0},
+         {ctor: "_Tuple2"
+         ,_0: t.x
+         ,_1: t.y});
+      };
+      var f = function (sw) {
+         return function () {
+            var _v10 = List.length(sw);
+            switch (_v10)
+            {case 1:
+               return Swipe(OneFinger)(A2(List.map,
+                 a,
+                 sw));
+               case 2:
+               return Swipe(TwoFinger)(A2(List.map,
+                 a,
+                 sw));}
+            return Swipe(ThreeFinger)(List.take(3)(A2(List.map,
+            a,
+            sw)));
+         }();
+      };
+      var ok = function (ts) {
+         return Basics.not(List.isEmpty(ts)) && Basics.not(isTap(List.head(ts)));
+      };
+      var dflt = _J.toList([{_: {}
+                            ,id: 0
+                            ,t0: 0
+                            ,x: 0
+                            ,x0: 0
+                            ,y: 0
+                            ,y0: 0}]);
+      return A2(Signal._op["<~"],
+      f,
+      A3(Signal.keepIf,
+      ok,
+      dflt,
+      Touch.touches));
+   }();
+   var UpLeft = {ctor: "UpLeft"};
+   var Left = {ctor: "Left"};
+   var DownLeft = {ctor: "DownLeft"};
+   var Down = {ctor: "Down"};
+   var DownRight = {ctor: "DownRight"};
+   var Right = {ctor: "Right"};
+   var UpRight = {ctor: "UpRight"};
+   var Up = {ctor: "Up"};
+   var toCardinal = function (_v11) {
+      return function () {
+         switch (_v11.ctor)
+         {case "Swipe":
+            return function () {
+                 var bw = F3(function (a,
+                 b1,
+                 b2) {
+                    return _U.cmp(a,
+                    b1) > -1 && _U.cmp(b2,a) > 0;
+                 });
+                 var f = function (a) {
+                    return A3(bw,
+                    a,
+                    (0 - Basics.pi) / 8,
+                    Basics.pi / 8) ? Right : A3(bw,
+                    a,
+                    Basics.pi / 8,
+                    3 * Basics.pi / 8) ? UpRight : A3(bw,
+                    a,
+                    3 * Basics.pi / 8,
+                    5 * Basics.pi / 8) ? Up : A3(bw,
+                    a,
+                    5 * Basics.pi / 8,
+                    7 * Basics.pi / 8) ? UpLeft : A3(bw,
+                    a,
+                    -3 * Basics.pi / 8,
+                    (0 - Basics.pi) / 8) ? DownRight : A3(bw,
+                    a,
+                    -5 * Basics.pi / 8,
+                    -3 * Basics.pi / 8) ? Down : A3(bw,
+                    a,
+                    -7 * Basics.pi / 8,
+                    -5 * Basics.pi / 8) ? DownLeft : Left;
+                 };
+                 return A2(List.map,f,_v11._1);
+              }();}
+         _E.Case($moduleName,
+         "between lines 47 and 56");
+      }();
+   };
+   var cardinal = A2(Signal._op["<~"],
+   function ($) {
+      return List.head(toCardinal($));
+   },
+   swipe);
+   var fromArrows = function (_v15) {
+      return function () {
+         return _U.eq(_v15.x,
+         1) && _U.eq(_v15.y,
+         0) ? Right : _U.eq(_v15.x,
+         1) && _U.eq(_v15.y,
+         1) ? UpRight : _U.eq(_v15.x,
+         0) && _U.eq(_v15.y,
+         1) ? Up : _U.eq(_v15.x,
+         -1) && _U.eq(_v15.y,
+         1) ? UpLeft : _U.eq(_v15.x,
+         1) && _U.eq(_v15.y,
+         -1) ? DownRight : _U.eq(_v15.x,
+         0) && _U.eq(_v15.y,
+         -1) ? Down : _U.eq(_v15.x,
+         -1) && _U.eq(_v15.y,
+         -1) ? DownLeft : Left;
+      }();
+   };
+   _elm.Touch.Screen.values = {_op: _op
+                              ,cardinal: cardinal
+                              ,swipe: swipe
+                              ,angle: angle
+                              ,toCardinal: toCardinal
+                              ,fromArrows: fromArrows
+                              ,isTap: isTap
+                              ,Up: Up
+                              ,UpRight: UpRight
+                              ,Right: Right
+                              ,DownRight: DownRight
+                              ,Down: Down
+                              ,DownLeft: DownLeft
+                              ,Left: Left
+                              ,UpLeft: UpLeft
+                              ,Swipe: Swipe
+                              ,OneFinger: OneFinger
+                              ,TwoFinger: TwoFinger
+                              ,ThreeFinger: ThreeFinger};
+   return _elm.Touch.Screen.values;
 };</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Main)</script><noscript></noscript></body></html>
