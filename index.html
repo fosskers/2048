@@ -41,7 +41,7 @@ Elm.Main.make = function (_elm) {
               Graphics.Element.middle,
               e);}
          _E.Case($moduleName,
-         "on line 104, column 18 to 40");
+         "on line 106, column 18 to 40");
       }();
    });
    var dim = 4;
@@ -190,13 +190,15 @@ Elm.Main.make = function (_elm) {
                     var g$ = f$(g);
                     var bs = blanks(g$);
                     return _U.eq(bs,
-                    0) ? g$ : A2(newBlock,
+                    0) ? g$ : !_U.eq(bs,
+                    Math.pow(dim,2)) && _U.eq(g,
+                    g$) ? g$ : A2(newBlock,
                     A2(Basics.mod,_v22._0,bs),
                     g$);
                  }();
               })(shiftBy(_v22._1));}
          _E.Case($moduleName,
-         "between lines 74 and 76");
+         "between lines 73 and 78");
       }();
    });
    var colour = function (_v26) {
@@ -232,7 +234,7 @@ Elm.Main.make = function (_elm) {
                  List.length(cs))));
               }();}
          _E.Case($moduleName,
-         "between lines 96 and 100");
+         "between lines 98 and 102");
       }();
    };
    var asCircle = F2(function (_v29,
@@ -261,10 +263,10 @@ Elm.Main.make = function (_elm) {
                                    ,Graphics.Collage.scale(2)(Graphics.Collage.toForm(te))]));
                       }();}
                  _E.Case($moduleName,
-                 "between lines 87 and 91");
+                 "between lines 89 and 93");
               }();}
          _E.Case($moduleName,
-         "between lines 87 and 91");
+         "between lines 89 and 93");
       }();
    });
    var render = F2(function (_v36,
