@@ -29,7 +29,7 @@ Elm.Main.make = function (_elm) {
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
    var Touch = Touch || {};
-   Touch.Screen = Elm.Touch.Screen.make(_elm);
+   Touch.Cardinal = Elm.Touch.Cardinal.make(_elm);
    var Window = Elm.Window.make(_elm);
    var _op = {};
    var center = F2(function (_v0,
@@ -52,9 +52,9 @@ Elm.Main.make = function (_elm) {
    Math.pow(dim,2),
    Keyboard.arrows);
    var input = function () {
-      var dir = Signal.merge(A2(Signal._op["<~"],
-      Touch.Screen.fromArrows,
-      Keyboard.arrows))(Touch.Screen.cardinal);
+      var dir = A2(Signal._op["<~"],
+      Touch.Cardinal.fromArrows,
+      Keyboard.arrows);
       return A2(Signal._op["~"],
       A2(Signal._op["<~"],
       F2(function (v0,v1) {
@@ -174,10 +174,10 @@ Elm.Main.make = function (_elm) {
    };
    var shiftBy = function (c) {
       return _U.eq(c,
-      Touch.Screen.Right) ? Maybe.Just(right) : _U.eq(c,
-      Touch.Screen.Left) ? Maybe.Just(left) : _U.eq(c,
-      Touch.Screen.Up) ? Maybe.Just(up) : _U.eq(c,
-      Touch.Screen.Down) ? Maybe.Just(down) : Maybe.Nothing;
+      Touch.Cardinal.right) ? Maybe.Just(right) : _U.eq(c,
+      Touch.Cardinal.left) ? Maybe.Just(left) : _U.eq(c,
+      Touch.Cardinal.up) ? Maybe.Just(up) : _U.eq(c,
+      Touch.Cardinal.down) ? Maybe.Just(down) : Maybe.Nothing;
    };
    var shift = F2(function (_v20,
    g) {
@@ -406,19 +406,19 @@ Elm.ListHelp.make = function (_elm) {
                           ,groupsOf: groupsOf};
    return _elm.ListHelp.values;
 };Elm.Touch = Elm.Touch || {};
-Elm.Touch.Screen = Elm.Touch.Screen || {};
-Elm.Touch.Screen.make = function (_elm) {
+Elm.Touch.Cardinal = Elm.Touch.Cardinal || {};
+Elm.Touch.Cardinal.make = function (_elm) {
    "use strict";
    _elm.Touch = _elm.Touch || {};
-   _elm.Touch.Screen = _elm.Touch.Screen || {};
-   if (_elm.Touch.Screen.values)
-   return _elm.Touch.Screen.values;
+   _elm.Touch.Cardinal = _elm.Touch.Cardinal || {};
+   if (_elm.Touch.Cardinal.values)
+   return _elm.Touch.Cardinal.values;
    var _N = Elm.Native,
    _U = _N.Utils.make(_elm),
    _L = _N.List.make(_elm),
    _E = _N.Error.make(_elm),
    _J = _N.JavaScript.make(_elm),
-   $moduleName = "Touch.Screen";
+   $moduleName = "Touch.Cardinal";
    var Basics = Elm.Basics.make(_elm);
    var Color = Elm.Color.make(_elm);
    var Graphics = Graphics || {};
@@ -433,175 +433,219 @@ Elm.Touch.Screen.make = function (_elm) {
    var String = Elm.String.make(_elm);
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
-   var Touch = Elm.Touch.make(_elm);
+   var Touch = Touch || {};
+   Touch.Types = Elm.Touch.Types.make(_elm);
+   var Touch = Touch || {};
+   Touch.Util = Elm.Touch.Util.make(_elm);
    var _op = {};
-   var isTap = function (_v0) {
+   var UpLeft = {ctor: "UpLeft"};
+   var upLeft = UpLeft;
+   var Left = {ctor: "Left"};
+   var left = Left;
+   var DownLeft = {ctor: "DownLeft"};
+   var downLeft = DownLeft;
+   var Down = {ctor: "Down"};
+   var down = Down;
+   var DownRight = {ctor: "DownRight"};
+   var downRight = DownRight;
+   var Right = {ctor: "Right"};
+   var right = Right;
+   var UpRight = {ctor: "UpRight"};
+   var upRight = UpRight;
+   var Up = {ctor: "Up"};
+   var up = Up;
+   var fromAngle = function (a) {
       return function () {
-         return _U.eq(_v0.x0,
-         _v0.x) && _U.eq(_v0.y0,_v0.y);
+         var bw = F3(function (a,
+         b1,
+         b2) {
+            return _U.cmp(a,
+            b1) > -1 && _U.cmp(b2,a) > 0;
+         });
+         return A3(bw,
+         a,
+         (0 - Basics.pi) / 8,
+         Basics.pi / 8) ? right : A3(bw,
+         a,
+         Basics.pi / 8,
+         3 * Basics.pi / 8) ? upRight : A3(bw,
+         a,
+         3 * Basics.pi / 8,
+         5 * Basics.pi / 8) ? up : A3(bw,
+         a,
+         5 * Basics.pi / 8,
+         7 * Basics.pi / 8) ? upLeft : A3(bw,
+         a,
+         -3 * Basics.pi / 8,
+         (0 - Basics.pi) / 8) ? downRight : A3(bw,
+         a,
+         -5 * Basics.pi / 8,
+         -3 * Basics.pi / 8) ? down : A3(bw,
+         a,
+         -7 * Basics.pi / 8,
+         -5 * Basics.pi / 8) ? downLeft : left;
       }();
    };
-   var angle = F2(function (_v2,
-   _v3) {
+   var fromSwipe = function (_v0) {
       return function () {
-         switch (_v3.ctor)
+         switch (_v0.ctor)
+         {case "Swipe":
+            return A2(List.map,
+              function ($) {
+                 return fromAngle(Touch.Util.vectorAngle($));
+              },
+              _v0._1);}
+         _E.Case($moduleName,
+         "on line 12, column 31 to 73");
+      }();
+   };
+   var None = {ctor: "None"};
+   var none = None;
+   var fromArrows = function (_v4) {
+      return function () {
+         return _U.eq(_v4.x,
+         1) && _U.eq(_v4.y,
+         0) ? right : _U.eq(_v4.x,
+         1) && _U.eq(_v4.y,
+         1) ? upRight : _U.eq(_v4.x,
+         0) && _U.eq(_v4.y,
+         1) ? up : _U.eq(_v4.x,
+         -1) && _U.eq(_v4.y,
+         1) ? upLeft : _U.eq(_v4.x,
+         1) && _U.eq(_v4.y,
+         -1) ? downRight : _U.eq(_v4.x,
+         0) && _U.eq(_v4.y,
+         -1) ? down : _U.eq(_v4.x,
+         -1) && _U.eq(_v4.y,
+         -1) ? downLeft : _U.eq(_v4.x,
+         -1) && _U.eq(_v4.y,
+         0) ? left : none;
+      }();
+   };
+   _elm.Touch.Cardinal.values = {_op: _op
+                                ,fromSwipe: fromSwipe
+                                ,fromAngle: fromAngle
+                                ,fromArrows: fromArrows
+                                ,none: none
+                                ,up: up
+                                ,upRight: upRight
+                                ,right: right
+                                ,downRight: downRight
+                                ,down: down
+                                ,downLeft: downLeft
+                                ,left: left
+                                ,upLeft: upLeft
+                                ,None: None
+                                ,Up: Up
+                                ,UpRight: UpRight
+                                ,Right: Right
+                                ,DownRight: DownRight
+                                ,Down: Down
+                                ,DownLeft: DownLeft
+                                ,Left: Left
+                                ,UpLeft: UpLeft};
+   return _elm.Touch.Cardinal.values;
+};Elm.Touch = Elm.Touch || {};
+Elm.Touch.Util = Elm.Touch.Util || {};
+Elm.Touch.Util.make = function (_elm) {
+   "use strict";
+   _elm.Touch = _elm.Touch || {};
+   _elm.Touch.Util = _elm.Touch.Util || {};
+   if (_elm.Touch.Util.values)
+   return _elm.Touch.Util.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _E = _N.Error.make(_elm),
+   _J = _N.JavaScript.make(_elm),
+   $moduleName = "Touch.Util";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var Touch = Touch || {};
+   Touch.Types = Elm.Touch.Types.make(_elm);
+   var _op = {};
+   var angle = F2(function (_v0,
+   _v1) {
+      return function () {
+         switch (_v1.ctor)
          {case "_Tuple2":
             return function () {
-                 switch (_v2.ctor)
+                 switch (_v0.ctor)
                  {case "_Tuple2":
                     return A2(Basics.atan2,
-                      Basics.toFloat(_v2._1 - _v3._1),
-                      Basics.toFloat(_v3._0 - _v2._0));}
+                      Basics.toFloat(_v0._1 - _v1._1),
+                      Basics.toFloat(_v1._0 - _v0._0));}
                  _E.Case($moduleName,
-                 "on line 42, column 25 to 68");
+                 "on line 12, column 25 to 68");
               }();}
          _E.Case($moduleName,
-         "on line 42, column 25 to 68");
+         "on line 12, column 25 to 68");
       }();
    });
+   var vectorAngle = Basics.uncurry(angle);
+   _elm.Touch.Util.values = {_op: _op
+                            ,angle: angle
+                            ,vectorAngle: vectorAngle};
+   return _elm.Touch.Util.values;
+};Elm.Touch = Elm.Touch || {};
+Elm.Touch.Types = Elm.Touch.Types || {};
+Elm.Touch.Types.make = function (_elm) {
+   "use strict";
+   _elm.Touch = _elm.Touch || {};
+   _elm.Touch.Types = _elm.Touch.Types || {};
+   if (_elm.Touch.Types.values)
+   return _elm.Touch.Types.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _E = _N.Error.make(_elm),
+   _J = _N.JavaScript.make(_elm),
+   $moduleName = "Touch.Types";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
    var ThreeFinger = {ctor: "ThreeFinger"};
    var TwoFinger = {ctor: "TwoFinger"};
    var OneFinger = {ctor: "OneFinger"};
+   var Tap = F2(function (a,b) {
+      return {ctor: "Tap"
+             ,_0: a
+             ,_1: b};
+   });
    var Swipe = F2(function (a,b) {
       return {ctor: "Swipe"
              ,_0: a
              ,_1: b};
    });
-   var swipe = function () {
-      var a = function (t) {
-         return A2(angle,
-         {ctor: "_Tuple2"
-         ,_0: t.x0
-         ,_1: t.y0},
-         {ctor: "_Tuple2"
-         ,_0: t.x
-         ,_1: t.y});
-      };
-      var f = function (sw) {
-         return function () {
-            var _v10 = List.length(sw);
-            switch (_v10)
-            {case 1:
-               return Swipe(OneFinger)(A2(List.map,
-                 a,
-                 sw));
-               case 2:
-               return Swipe(TwoFinger)(A2(List.map,
-                 a,
-                 sw));}
-            return Swipe(ThreeFinger)(List.take(3)(A2(List.map,
-            a,
-            sw)));
-         }();
-      };
-      var ok = function (ts) {
-         return Basics.not(List.isEmpty(ts)) && Basics.not(isTap(List.head(ts)));
-      };
-      var dflt = _J.toList([{_: {}
-                            ,id: 0
-                            ,t0: 0
-                            ,x: 0
-                            ,x0: 0
-                            ,y: 0
-                            ,y0: 0}]);
-      return A2(Signal._op["<~"],
-      f,
-      A3(Signal.keepIf,
-      ok,
-      dflt,
-      Touch.touches));
-   }();
-   var UpLeft = {ctor: "UpLeft"};
-   var Left = {ctor: "Left"};
-   var DownLeft = {ctor: "DownLeft"};
-   var Down = {ctor: "Down"};
-   var DownRight = {ctor: "DownRight"};
-   var Right = {ctor: "Right"};
-   var UpRight = {ctor: "UpRight"};
-   var Up = {ctor: "Up"};
-   var toCardinal = function (_v11) {
-      return function () {
-         switch (_v11.ctor)
-         {case "Swipe":
-            return function () {
-                 var bw = F3(function (a,
-                 b1,
-                 b2) {
-                    return _U.cmp(a,
-                    b1) > -1 && _U.cmp(b2,a) > 0;
-                 });
-                 var f = function (a) {
-                    return A3(bw,
-                    a,
-                    (0 - Basics.pi) / 8,
-                    Basics.pi / 8) ? Right : A3(bw,
-                    a,
-                    Basics.pi / 8,
-                    3 * Basics.pi / 8) ? UpRight : A3(bw,
-                    a,
-                    3 * Basics.pi / 8,
-                    5 * Basics.pi / 8) ? Up : A3(bw,
-                    a,
-                    5 * Basics.pi / 8,
-                    7 * Basics.pi / 8) ? UpLeft : A3(bw,
-                    a,
-                    -3 * Basics.pi / 8,
-                    (0 - Basics.pi) / 8) ? DownRight : A3(bw,
-                    a,
-                    -5 * Basics.pi / 8,
-                    -3 * Basics.pi / 8) ? Down : A3(bw,
-                    a,
-                    -7 * Basics.pi / 8,
-                    -5 * Basics.pi / 8) ? DownLeft : Left;
-                 };
-                 return A2(List.map,f,_v11._1);
-              }();}
-         _E.Case($moduleName,
-         "between lines 47 and 56");
-      }();
-   };
-   var cardinal = A2(Signal._op["<~"],
-   function ($) {
-      return List.head(toCardinal($));
-   },
-   swipe);
-   var fromArrows = function (_v15) {
-      return function () {
-         return _U.eq(_v15.x,
-         1) && _U.eq(_v15.y,
-         0) ? Right : _U.eq(_v15.x,
-         1) && _U.eq(_v15.y,
-         1) ? UpRight : _U.eq(_v15.x,
-         0) && _U.eq(_v15.y,
-         1) ? Up : _U.eq(_v15.x,
-         -1) && _U.eq(_v15.y,
-         1) ? UpLeft : _U.eq(_v15.x,
-         1) && _U.eq(_v15.y,
-         -1) ? DownRight : _U.eq(_v15.x,
-         0) && _U.eq(_v15.y,
-         -1) ? Down : _U.eq(_v15.x,
-         -1) && _U.eq(_v15.y,
-         -1) ? DownLeft : Left;
-      }();
-   };
-   _elm.Touch.Screen.values = {_op: _op
-                              ,cardinal: cardinal
-                              ,swipe: swipe
-                              ,angle: angle
-                              ,toCardinal: toCardinal
-                              ,fromArrows: fromArrows
-                              ,isTap: isTap
-                              ,Up: Up
-                              ,UpRight: UpRight
-                              ,Right: Right
-                              ,DownRight: DownRight
-                              ,Down: Down
-                              ,DownLeft: DownLeft
-                              ,Left: Left
-                              ,UpLeft: UpLeft
-                              ,Swipe: Swipe
-                              ,OneFinger: OneFinger
-                              ,TwoFinger: TwoFinger
-                              ,ThreeFinger: ThreeFinger};
-   return _elm.Touch.Screen.values;
+   _elm.Touch.Types.values = {_op: _op
+                             ,Swipe: Swipe
+                             ,Tap: Tap
+                             ,OneFinger: OneFinger
+                             ,TwoFinger: TwoFinger
+                             ,ThreeFinger: ThreeFinger};
+   return _elm.Touch.Types.values;
 };</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Main)</script><noscript></noscript></body></html>
