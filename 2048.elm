@@ -1,5 +1,6 @@
 import ListHelp (..)
-import Touch.Screen     as T
+import Touch.Cardinal   as Cardinal
+import Touch.Gestures   as Gestures
 import Graphics.Element as G
 import Window           as W
 import Keyboard         as K
@@ -64,13 +65,14 @@ down : Grid -> Grid
 down = transpose . right . transpose
 
 -- | RENDERING
-render : Dimensions -> Grid -> Element
-render (w,h) g =
+render : Cardinal.Direction -> Dimensions -> Grid -> Element
+render d (w,h) g =
     let f  = flow G.right . map (asCircle (w,h))
         s  = (min w h `div` 10) * dim * 2
-    in center (w,h) . container s s middle . flow G.down . map f <| g
+        pd = \xs -> container s 25 middle (asText d) :: xs  -- Input direciton.
+    in center (w,h) . container s (s + 25) middle . flow G.down . pd . map f <| g
 
-shift : (Int,T.Cardinal) -> Grid -> Grid
+shift : (Int,Cardinal.Direction) -> Grid -> Grid
 shift (n,d) g = shiftBy d |>
   maybe g (\f' -> let g' = f' g
                       bs = blanks g'
@@ -78,12 +80,12 @@ shift (n,d) g = shiftBy d |>
                         | bs /= (dim ^ 2) && g == g' -> g'
                         | otherwise -> newBlock (n `mod` bs) g')
 
-shiftBy : T.Cardinal -> Maybe (Grid -> Grid)
-shiftBy c = if | c == T.Right -> Just right
-               | c == T.Left  -> Just left
-               | c == T.Up    -> Just up
-               | c == T.Down  -> Just down
-               | otherwise    -> Nothing
+shiftBy : Cardinal.Direction -> Maybe (Grid -> Grid)
+shiftBy c = if | c == Cardinal.right -> Just right
+               | c == Cardinal.left  -> Just left
+               | c == Cardinal.up    -> Just up
+               | c == Cardinal.down  -> Just down
+               | otherwise           -> Nothing
 
 asCircle : Dimensions -> Block -> Element
 asCircle (w,h) (Block n) =
@@ -109,9 +111,9 @@ center (w,h) e = container w h middle e
 randNthPos : Signal Int
 randNthPos = R.range 1 (dim ^ 2) K.arrows
 
-input : Signal (Int,T.Cardinal)
-input = let dir = T.cardinal |> merge (T.fromArrows <~ K.arrows)
+input : Signal (Int,Cardinal.Direction)
+input = let dir = merge (Cardinal.fromArrows <~ K.arrows) Gestures.ray
         in (,) <~ randNthPos ~ dir
 
 main : Signal Element
-main = render <~ W.dimensions ~ (foldp shift board input)
+main = render <~ (snd <~ input) ~ W.dimensions ~ (foldp shift board input)
